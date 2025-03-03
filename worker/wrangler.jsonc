@@ -13,11 +13,5 @@
 	"placement": { "mode": "smart" },
 	"ai": {
     "binding": "AI"
-  },
-	"kv_namespaces": [
-    {
-      "binding": "KV",
-      "id": "73f48f8bf1af41d2a84224619753ce30"
-    }
-  ]
+  }
 }
