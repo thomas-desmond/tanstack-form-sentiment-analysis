@@ -55,11 +55,7 @@ function App() {
       feedback: "",
     },
     onSubmit: async ({ value }) => {
-      const baseUrl = process.env.NODE_ENV === "development"
-        ? "http://127.0.0.1:8787"
-        : WORKER_URL;
-
-      const response = await fetch(`${baseUrl}/submit`, {
+      const response = await fetch(`${WORKER_URL}/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
