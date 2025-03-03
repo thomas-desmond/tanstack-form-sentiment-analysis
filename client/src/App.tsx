@@ -3,8 +3,9 @@ import { useForm } from "@tanstack/react-form";
 import type { AnyFieldApi } from "@tanstack/react-form";
 import { useState } from "react";
 import cloudflareLogo from "./assets/cloudflare-logo.png";
+import { SentimentResult } from "./components/sentimentResult";
 
-const WORKER_URL = "https://worker.thomas-development.workers.dev/";
+const WORKER_URL = "https://worker.thomas-development.workers.dev";
 
 function FieldInfo({ field }: { field: AnyFieldApi }) {
   return (
@@ -16,38 +17,9 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
   );
 }
 
-function SentimentResult({
-  sentiment,
-}: {
-  sentiment: { label: string; score: number } | null;
-}) {
-  if (!sentiment) return null;
-
-  return (
-    <div
-      style={{
-        marginTop: "1rem",
-        padding: "1rem",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-    >
-      <h2>Sentiment Analysis Result</h2>
-      <p>
-        <strong>Label:</strong> {sentiment.label}
-      </p>
-      <p>
-        <strong>Score:</strong> {(sentiment.score * 100).toFixed(1)}%
-      </p>
-    </div>
-  );
-}
 
 function App() {
-  const [sentiment, setSentiment] = useState<{
-    label: string;
-    score: number;
-  } | null>(null);
+  const [sentiment, setSentiment] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -55,16 +27,25 @@ function App() {
       feedback: "",
     },
     onSubmit: async ({ value }) => {
-      const response = await fetch(`${WORKER_URL}/submit`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(value),
-      });
-      const data = await response.json();
-      console.log(data);
-      setSentiment(data.sentiment);
+
+      const baseUrl = WORKER_URL ;
+
+      try {
+        const response = await fetch(`${baseUrl}/submit`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(value),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setSentiment(data.sentiment.response);
+      } catch (error) {
+        console.error("Error submitting feedback:", error);
+      }
     },
   });
 
@@ -77,10 +58,13 @@ function App() {
           style={{ width: "150px" }}
         />
       </div>
-      <h1 style={{ color: "#F48120" }}>Sentiment Analysis</h1>
+      <h1 style={{ color: "#F48120" }}>Feedback Analyzer</h1>
       <h3 style={{ color: "#F48120" }}>
         TanStack Form + Cloudflare Workers AI{" "}
       </h3>
+      <div className="instructions" style={{ marginBottom: '1.5rem', maxWidth: '625px', margin: 'auto' }}>
+        <p>Use the feedback input below to write potential feedback. This will get submitted to Cloudflare Workers AI and be analyzed and give you an analysis on whether its positive or negative.</p>
+      </div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -97,7 +81,7 @@ function App() {
           borderRadius: "8px",
         }}
       >
-        <div
+               <div
           style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
         >
           {/* A type-safe field component*/}
