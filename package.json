@@ -1,0 +1,14 @@
+{
+  "name": "tanstack-form-sentiment-analysis",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+  },
+  "workspaces": [
+    "client",
+    "worker"
+  ],
+  "devDependencies": {
+    "wrangler": "^3.105.1"
+  }
+}
