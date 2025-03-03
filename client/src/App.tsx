@@ -1,6 +1,9 @@
 import "./App.css";
 import { useForm } from "@tanstack/react-form";
 import type { AnyFieldApi } from "@tanstack/react-form";
+import { useState } from "react";
+
+const WORKER_URL = "https://worker.thomas-development.workers.dev/";
 
 function FieldInfo({ field }: { field: AnyFieldApi }) {
   return (
@@ -13,14 +16,28 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
   );
 }
 
+function SentimentResult({ sentiment }: { sentiment: { label: string; score: number } | null }) {
+  if (!sentiment) return null;
+
+  return (
+    <div style={{ marginTop: '1rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '8px' }}>
+      <h2>Sentiment Analysis Result</h2>
+      <p><strong>Label:</strong> {sentiment.label}</p>
+      <p><strong>Score:</strong> {(sentiment.score * 100).toFixed(1)}%</p>
+    </div>
+  );
+}
+
 function App() {
+  const [sentiment, setSentiment] = useState<{ label: string; score: number } | null>(null);
+
   const form = useForm({
     defaultValues: {
       name: "",
       feedback: "",
     },
     onSubmit: async ({ value }) => {
-      let baseUrl = "";
+      let baseUrl = WORKER_URL;
       if (process.env.NODE_ENV === "development") {
         baseUrl = "http://127.0.0.1:8787";
       }
@@ -33,12 +50,13 @@ function App() {
       });
       const data = await response.json();
       console.log(data);
+      setSentiment(data.sentiment);
     },
   });
 
   return (
     <>
-      <h1>Tanstack Form + Cloudflare Workers AI</h1>
+      <h1>TanStack Form + Cloudflare Workers AI</h1>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -126,6 +144,7 @@ function App() {
           )}
         />
       </form>
+      <SentimentResult sentiment={sentiment} />
     </>
   );
 }
