@@ -2,6 +2,7 @@ import "./App.css";
 import { useForm } from "@tanstack/react-form";
 import type { AnyFieldApi } from "@tanstack/react-form";
 import { useState } from "react";
+import cloudflareLogo from "./assets/cloudflare-logo.png";
 
 const WORKER_URL = "https://worker.thomas-development.workers.dev/";
 
@@ -11,25 +12,42 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
       {field.state.meta.isTouched && field.state.meta.errors.length ? (
         <em>{field.state.meta.errors.join(", ")}</em>
       ) : null}
-      {field.state.meta.isValidating ? "Validating..." : null}
     </>
   );
 }
 
-function SentimentResult({ sentiment }: { sentiment: { label: string; score: number } | null }) {
+function SentimentResult({
+  sentiment,
+}: {
+  sentiment: { label: string; score: number } | null;
+}) {
   if (!sentiment) return null;
 
   return (
-    <div style={{ marginTop: '1rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '8px' }}>
+    <div
+      style={{
+        marginTop: "1rem",
+        padding: "1rem",
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+      }}
+    >
       <h2>Sentiment Analysis Result</h2>
-      <p><strong>Label:</strong> {sentiment.label}</p>
-      <p><strong>Score:</strong> {(sentiment.score * 100).toFixed(1)}%</p>
+      <p>
+        <strong>Label:</strong> {sentiment.label}
+      </p>
+      <p>
+        <strong>Score:</strong> {(sentiment.score * 100).toFixed(1)}%
+      </p>
     </div>
   );
 }
 
 function App() {
-  const [sentiment, setSentiment] = useState<{ label: string; score: number } | null>(null);
+  const [sentiment, setSentiment] = useState<{
+    label: string;
+    score: number;
+  } | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -37,10 +55,10 @@ function App() {
       feedback: "",
     },
     onSubmit: async ({ value }) => {
-      let baseUrl = WORKER_URL;
-      if (process.env.NODE_ENV === "development") {
-        baseUrl = "http://127.0.0.1:8787";
-      }
+      const baseUrl = process.env.NODE_ENV === "development"
+        ? "http://127.0.0.1:8787"
+        : WORKER_URL;
+
       const response = await fetch(`${baseUrl}/submit`, {
         method: "POST",
         headers: {
@@ -56,16 +74,36 @@ function App() {
 
   return (
     <>
-      <h1>TanStack Form + Cloudflare Workers AI</h1>
+      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+        <img
+          src={cloudflareLogo}
+          alt="Cloudflare Logo"
+          style={{ width: "150px" }}
+        />
+      </div>
+      <h1 style={{ color: "#F48120" }}>Sentiment Analysis</h1>
+      <h3 style={{ color: "#F48120" }}>
+        TanStack Form + Cloudflare Workers AI{" "}
+      </h3>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
         }}
-        style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px', margin: 'auto' }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          maxWidth: "400px",
+          margin: "auto",
+          padding: "1rem",
+          borderRadius: "8px",
+        }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+        >
           {/* A type-safe field component*/}
           <form.Field
             name="name"
@@ -85,7 +123,6 @@ function App() {
               },
             }}
             children={(field) => {
-              // Avoid hasty abstractions. Render props are great!
               return (
                 <>
                   <label htmlFor={field.name}>First Name:</label>
@@ -95,6 +132,7 @@ function App() {
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
+                    style={{ padding: "0.5rem", borderRadius: "4px" }}
                   />
                   <FieldInfo field={field} />
                 </>
@@ -102,7 +140,9 @@ function App() {
             }}
           />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+        >
           <form.Field
             name="feedback"
             validators={{
@@ -129,6 +169,11 @@ function App() {
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
+                  style={{
+                    padding: "0.5rem",
+                    borderRadius: "4px",
+                    border: "1px solid",
+                  }}
                 />
                 <FieldInfo field={field} />
               </>
@@ -138,7 +183,17 @@ function App() {
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, isSubmitting]: [boolean, boolean]) => (
-            <button type="submit" disabled={!canSubmit}>
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              style={{
+                backgroundColor: "#F48120",
+                color: "white",
+                padding: "0.5rem",
+                borderRadius: "4px",
+                border: "none",
+              }}
+            >
               {isSubmitting ? "..." : "Submit"}
             </button>
           )}
