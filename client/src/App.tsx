@@ -5,7 +5,7 @@ import { useState } from "react";
 import cloudflareLogo from "./assets/cloudflare-logo.png";
 import { SentimentResult } from "./components/sentimentResult";
 
-const WORKER_URL = "https://worker.thomas-development.workers.dev";
+const WORKER_URL = "YOUR-DEPLOYED-WORKERS-URL";
 
 function FieldInfo({ field }: { field: AnyFieldApi }) {
   return (
